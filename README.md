@@ -231,3 +231,8 @@ You can download the images from the following links:
 
 This project provides a functional and didactic base for byte-level EXT4 exploration,
 focused on extents, shell commands, and direct handling of essential filesystem structures.
+
+## References
+
+- [understanding-ext4-disk-layout-part-1](https://blogs.oracle.com/linux/understanding-ext4-disk-layout-part-1);
+- [understanding-ext4-disk-layout-part-2](https://blogs.oracle.com/linux/understanding-ext4-disk-layout-part-2).
