@@ -222,6 +222,11 @@ cp images/myext4image4k.img images/myext4image4k_test.img
 - Simplified EXT4 scope for academic use.
 - Advanced operations (for example journal handling and complex metadata cases) are out of scope.
 
+## Download of the images
+
+You can download the images from the following links:
+- [images.zip](https://drive.google.com/file/d/1jb_fkTmUlh4B7hQo95FS2XMAO7xPQgh3/view?usp=sharing)
+
 ## Summary
 
 This project provides a functional and didactic base for byte-level EXT4 exploration,
