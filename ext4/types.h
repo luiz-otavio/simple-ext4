@@ -40,52 +40,55 @@ struct ext4_block_group_descriptor {
 };
 
 struct ext4_inode {
-    uint16_t i_mode;         /* 0x00: Tipo e permissões */
-    uint16_t i_uid;          /* 0x02: UID do dono */
-    uint32_t i_size_lo;      /* 0x04: Tamanho baixo */
-    uint32_t i_atime;        /* 0x08 */
-    uint32_t i_ctime;        /* 0x0C */
-    uint32_t i_mtime;        /* 0x10 */
-    uint32_t i_dtime;        /* 0x14 */
-    uint16_t i_gid;          /* 0x18 */
-    uint16_t i_links_count;  /* 0x1A */
-    uint32_t i_blocks_lo;    /* 0x1C: em setores de 512 bytes */
-    uint32_t i_flags;        /* 0x20 */
-    uint32_t i_osd1;         /* 0x24 */
+    uint16_t i_mode;         
+    uint16_t i_uid;         
+    uint32_t i_size_lo;     
+    uint32_t i_atime;        
+    uint32_t i_ctime;        
+    uint32_t i_mtime;        
+    uint32_t i_dtime;        
+    uint16_t i_gid;          
+    uint16_t i_links_count; 
+    uint32_t i_blocks_lo;   // Número de blocos
+    uint32_t i_flags;        
+    uint32_t i_osd1;         
     char     i_block[60];    /* 0x28: blocos/extents */
-    uint32_t i_generation;   /* 0x64 */
-    uint32_t i_file_acl_lo;  /* 0x68 */
-    uint32_t i_size_high;    /* 0x6C */
-    uint32_t i_obso_faddr;   /* 0x70 */
-    uint8_t  i_osd2[12];     /* 0x74 */
+    uint32_t i_generation;   
+    uint32_t i_file_acl_lo;  
+    uint32_t i_size_high;    
+    uint32_t i_obso_faddr;   
+    uint8_t  i_osd2[12];     
 };
 
 struct ext4_dir_entry {
-    uint32_t inode;
-    uint16_t rec_len;
-    uint8_t  name_len;
-    uint8_t  file_type;
-    char     name[255];
+    uint32_t inode; // Inode number do arquivo/diretório apontado por esta entrada
+    uint16_t rec_len; // Tamanho desta entrada de diretório em bytes (mínimo 8 + name_len, alinhado a 4 bytes)
+    uint8_t  name_len; // Comprimento do nome do arquivo/diretório
+    uint8_t  file_type; // Tipo do arquivo (EXT4_FT_REG_FILE = arquivo regular, EXT4_FT_DIR = diretório, etc)
+    char     name[255]; // Nome do arquivo/diretório (não fixo, mas o tamanho máximo é 255 bytes)
 };
 
 struct ext4_extent_header {
-    uint16_t eh_magic;
-    uint16_t eh_entries;
-    uint16_t eh_max;
-    uint16_t eh_depth;
-    uint32_t eh_generation;
+    uint16_t eh_magic; // Magic number do header de extents (0xF30A)
+    uint16_t eh_entries; // Número de entradas (ext4_extent ou ext4_extent_idx) no bloco
+    uint16_t eh_max; // Número máximo de entradas que cabem no bloco
+    uint16_t eh_depth; // 0 = bloco de dados, >0 = bloco de índices 
+    uint32_t not_used_eh_generation; // Número de versão do extent tree (não usado nesse projeto)
 };
 
 struct ext4_extent_idx {
-    uint32_t ei_block;
-    uint32_t ei_leaf_lo;
-    uint16_t ei_leaf_hi;
+    uint32_t ei_block; // Primeiro bloco lógico do extent apontado por este índice
+    uint32_t ei_leaf_lo; // Bloco físico do extent apontado por este índice (parte baixa)
+    uint16_t ei_leaf_hi; // Bloco físico do extent apontado por este índice (parte alta)
     uint16_t ei_unused;
 };
 
 struct ext4_extent {
-    uint32_t ee_block;
+    uint32_t ee_block; // Primeiro bloco lógico do extent
+    // Número de blocos do extent
+    // Se ee_len > 1, significa que o extent cobre blocos consecutivos (por isso ee_len * block_size = tamanho em bytes do extent)
+    // Se ee_len > 32768, significa que o extent cobre blocos não consecutivos (por isso ee_len - 32768 = número de blocos não consecutivos do extent)
     uint16_t ee_len;
-    uint16_t ee_start_hi;
-    uint32_t ee_start_lo;
+    uint16_t ee_start_hi; // Parte alta do bloco físico do extent
+    uint32_t ee_start_lo; // Parte baixa do bloco físico do extent
 };

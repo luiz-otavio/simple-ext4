@@ -166,7 +166,6 @@ int ext4_rename_entry(ext4_context* ctx, uint32_t dir_inode_number,
     
     uint32_t offset = 0;
     bool found = false;
-    // Ate agora não entendi esse +8. As documentações não citam sobre
     while (offset + 8 <= block_size) {
         uint32_t inode = 0;
         uint16_t rec_len = 0;
