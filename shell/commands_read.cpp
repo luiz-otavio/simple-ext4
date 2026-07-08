@@ -71,19 +71,39 @@ void cmd_cd(ext4_context* ctx, const char* path) {
     // Atualiza o inode do diretório corrente no contexto
     ctx->current_inode_number = target_inode;
 
-    // Atualiza current_path
+    // Atualiza current_path.
     if (path[0] == '/') {
         strncpy(ctx->current_path, path, sizeof(ctx->current_path) - 1);
+        ctx->current_path[sizeof(ctx->current_path) - 1] = '\0';
+
+        const size_t len = strlen(ctx->current_path);
+        if (len > 0 && ctx->current_path[len - 1] != '/') {
+            strncat(ctx->current_path, "/", sizeof(ctx->current_path) - len - 1);
+        }
     } else if (strcmp(path, "..") == 0) {
+        size_t len = strlen(ctx->current_path);
+
+        if (len > 1 && ctx->current_path[len - 1] == '/') {
+            ctx->current_path[len - 1] = '\0';
+        }
+
         char* last = strrchr(ctx->current_path, '/');
-        if (last != nullptr && last != ctx->current_path) *last = '\0';
-        else strcpy(ctx->current_path, "/");
+        if (last != nullptr && last != ctx->current_path) {
+            *(last + 1) = '\0';
+        } else {
+            strcpy(ctx->current_path, "/");
+        }
     } else {
         const size_t len = strlen(ctx->current_path);
         if (len > 0 && ctx->current_path[len - 1] != '/') {
             strncat(ctx->current_path, "/", sizeof(ctx->current_path) - len - 1);
         }
         strncat(ctx->current_path, path, sizeof(ctx->current_path) - strlen(ctx->current_path) - 1);
+
+        const size_t new_len = strlen(ctx->current_path);
+        if (new_len > 0 && ctx->current_path[new_len - 1] != '/') {
+            strncat(ctx->current_path, "/", sizeof(ctx->current_path) - new_len - 1);
+        }
     }
 }
 
