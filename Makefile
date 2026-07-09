@@ -1,6 +1,6 @@
 CXX      := g++
 CXXFLAGS := -Wall -Wextra -pedantic -std=c++17 -I.
-# É necessário linkar com a biblioteca Crypto++ para usar a função de checksum
+# É necessário linkar com a biblioteca Crypto++ para usar a função de checksum (apt install libcrypto++-dev)
 LDLIBS   := -lcryptopp
 
 APP := ext4_app
