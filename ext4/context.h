@@ -25,5 +25,9 @@ struct ext4_context {
 // OBS: O contexto só inicia se a imagem for um EXT4 válido (magic number) e com feature de extents habilitada (necessário para esse projeto).
 int  ext4_context_init(ext4_context* ctx, const char* image_path);
 
+// Salva o contexto de volta na imagem do arquivo.
+// Retorna 0 em sucesso, negativo em erro.
+int ext4_context_save(ext4_context* ctx);
+
 // Libera todos os recursos alocados pelo contexto.
 void ext4_context_destroy(ext4_context* ctx);

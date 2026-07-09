@@ -28,6 +28,7 @@ void shell_run(ext4_context* ctx, const char* image_name) {
         const std::string& cmd = args[0];
 
         if (cmd == "exit" || cmd == "quit") {
+            ext4_context_save(ctx);
             break;
         } else if (cmd == "info") {
             cmd_info(ctx);

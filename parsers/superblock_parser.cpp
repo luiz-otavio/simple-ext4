@@ -28,3 +28,25 @@ int parse_superblock(const char* block, struct ext4_superblock* superblock) {
 
     return 0;
 }
+
+int write_superblock(const struct ext4_superblock* superblock, char* block) {
+    if (superblock == nullptr || block == nullptr) {
+        return -1;
+    }
+
+    // Copia da memoria | index | tamanho
+    memcpy(block + 0x00, &superblock->s_inodes_count,         sizeof(uint32_t));
+    memcpy(block + 0x04, &superblock->s_blocks_count_lo,      sizeof(uint32_t));
+    memcpy(block + 0x0C, &superblock->s_free_blocks_count_lo, sizeof(uint32_t));
+    memcpy(block + 0x38, &superblock->s_magic,                sizeof(uint16_t));
+    memcpy(block + 0x10, &superblock->s_free_inodes_count,    sizeof(uint32_t));
+    memcpy(block + 0x18, &superblock->s_log_block_size,       sizeof(uint32_t));
+    memcpy(block + 0x20, &superblock->s_blocks_per_group,     sizeof(uint32_t));
+    memcpy(block + 0x28, &superblock->s_inodes_per_group,     sizeof(uint32_t));
+    memcpy(block + 0x58, &superblock->s_inode_size,           sizeof(uint16_t));
+    memcpy(block + 0x60, &superblock->s_feature_incompat,     sizeof(uint32_t));
+    memcpy(block + 0x78, &superblock->s_volume_name,          16);
+    memcpy(block + 0xFE, &superblock->s_desc_size,            sizeof(uint16_t));
+
+    return 0;
+}

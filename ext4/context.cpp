@@ -118,6 +118,50 @@ int ext4_context_init(ext4_context* ctx, const char* image_path) {
     return 0;
 }
 
+int ext4_context_save(ext4_context* ctx) {
+    if (ctx == nullptr) return -1;
+
+    // Salva o superbloco
+    if (lseek(ctx->fd, 1024, SEEK_SET) < 0) {
+        std::cerr << "Erro ao salvar o superbloco." << std::endl;
+        return -2;
+    }
+
+    // Escreve o superbloco de volta na imagem do arquivo
+    char sb_buf[1024];
+    if (write_superblock(&ctx->sb, sb_buf) != 0) {
+        std::cerr << "Erro ao escrever o superbloco no buffer." << std::endl;
+        return -3;
+    }
+
+    if (write(ctx->fd, sb_buf, sizeof(sb_buf)) != sizeof(sb_buf)) {
+        std::cerr << "Erro ao salvar o superbloco." << std::endl;
+        return -4;
+    }
+
+    // Salva os bitmaps de blocos
+    for (int i = 0; i < ctx->num_groups; i++) {
+        const uint32_t off = (ctx->bgds[i].bg_block_bitmap_lo) * ctx->block_size;
+        if (lseek(ctx->fd, off, SEEK_SET) < 0 ||
+            write(ctx->fd, ctx->block_bitmaps[i], ctx->sb.s_blocks_per_group / 8) != static_cast<ssize_t>(ctx->sb.s_blocks_per_group / 8)) {
+            std::cerr << "Erro ao salvar o bitmap de blocos do grupo " << i << std::endl;
+            return -5;
+        }
+    }
+
+    // Salva os bitmaps de inodes
+    for (int i = 0; i < ctx->num_groups; i++) {
+        const uint32_t off = (ctx->bgds[i].bg_inode_bitmap_lo) * ctx->block_size;
+        if (lseek(ctx->fd, off, SEEK_SET) < 0 ||
+            write(ctx->fd, ctx->inode_bitmaps[i], ctx->sb.s_inodes_per_group / 8) != static_cast<ssize_t>(ctx->sb.s_inodes_per_group / 8)) {
+            std::cerr << "Erro ao salvar o bitmap de inodes do grupo " << i << std::endl;
+            return -6;
+        }
+    }
+
+    return 0;
+}
+
 void ext4_context_destroy(ext4_context* ctx) {
     if (ctx == nullptr) return;
 
