@@ -195,7 +195,7 @@ void cmd_rmdir(ext4_context* ctx, const char* name) {
     // Obtém o inode do diretório para verificar se é realmente um diretório e se está vazio
     if (ext4_get_inode(ctx, inode_number, &inode) != 0) { std::cerr << "rmdir: não é possível ler o inode." << std::endl; return; }
 
-    // Verifica se o inode é realmente um diretório com base no i_mode
+    // Verifica se o inode é realmente um diretório com base no i_mode (do bit 15 ao bit 12)
     if ((inode.i_mode & 0xF000) != 0x4000) {
         std::cerr << "rmdir: não é um diretório: " << name << std::endl;
         return;
@@ -225,6 +225,14 @@ void cmd_rmdir(ext4_context* ctx, const char* name) {
     inode.i_links_count = 0;
     ext4_write_inode(ctx, inode_number, &inode);
     ext4_free_inode(ctx, inode_number);
+
+    off_t block_off = 0;
+    uint32_t block_size = 0;
+    // Obtém o primeiro bloco de dados do diretório via extents
+    if (get_dir_first_block(ctx, &inode, &block_off, &block_size) != 0) return;
+
+    // Libera o bloco de dados do diretório
+    ext4_free_block(ctx, block_off / ctx->block_size);
 
     std::cout << "Removido diretório '" << name << "'." << std::endl;
 }

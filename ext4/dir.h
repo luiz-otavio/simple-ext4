@@ -38,3 +38,7 @@ int ext4_add_dir_entry(ext4_context* ctx, uint32_t dir_inode_number,
 // marcando seu inode como 0 (entrada deletada).
 // Retorna 0 em sucesso, negativo se não encontrou ou erro.
 int ext4_remove_dir_entry(ext4_context* ctx, uint32_t dir_inode_number, const char* name);
+
+// Helper: dado o inode de um diretório, retorna o offset (em bytes na imagem) e
+// o tamanho em bytes do primeiro bloco de dados deste diretório via extents.
+int get_dir_first_block(const ext4_context* ctx, const ext4_inode* dir_inode, off_t* out_offset, uint32_t* out_size);

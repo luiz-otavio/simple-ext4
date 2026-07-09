@@ -120,10 +120,7 @@ int ext4_resolve_path(const ext4_context* ctx, const char* path,
     return 0;
 }
 
-// Helper: dado o inode de um diretório, retorna o offset (em bytes na imagem) e
-// o tamanho em bytes do primeiro bloco de dados deste diretório via extents.
-static int get_dir_first_block(const ext4_context* ctx, const ext4_inode* dir_inode,
-                                off_t* out_offset, uint32_t* out_size) {
+int get_dir_first_block(const ext4_context* ctx, const ext4_inode* dir_inode, off_t* out_offset, uint32_t* out_size) {
     const ext4_extent_header* hdr =
         reinterpret_cast<const ext4_extent_header*>(dir_inode->i_block);
     if (hdr->eh_magic != EXT4_EXTENT_MAGIC || hdr->eh_depth != 0 || hdr->eh_entries == 0) return -1;
@@ -294,6 +291,7 @@ int ext4_add_dir_entry(ext4_context* ctx, uint32_t dir_inode_number,
         return -7;
     }
     delete[] block;
+
     return 0;
 }
 
@@ -344,5 +342,6 @@ int ext4_remove_dir_entry(ext4_context* ctx, uint32_t dir_inode_number, const ch
         return -6;
     }
     delete[] block;
+
     return 0;
 }

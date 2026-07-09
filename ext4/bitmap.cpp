@@ -52,6 +52,10 @@ int ext4_alloc_inode(ext4_context* ctx, uint32_t* out_inode_number) {
                 lseek(ctx->fd, off + i / 8, SEEK_SET); // Posiciona o cursor no arquivo da imagem para o byte correto do bitmap
                 write(ctx->fd, &ctx->inode_bitmaps[g][i / 8], 1); // Escreve o byte do bitmap na imagem
 
+                // Atualiza o numero de inodes livres
+                ctx->sb.s_free_inodes_count--;
+                ctx->sb.s_inodes_count++; // Incrementa o contador de inodes alocados
+
                 *out_inode_number = static_cast<uint32_t>(g) * inodes_in_group + i + 1; // Retorna o inode number (1-based) aonde foi alocado
                 return 0;
             }
@@ -73,6 +77,10 @@ int ext4_alloc_block(ext4_context* ctx, uint32_t* out_block_number) {
                 const uint32_t off = (ctx->bgds[g].bg_block_bitmap_lo) * ctx->block_size;
                 lseek(ctx->fd, off + i / 8, SEEK_SET); // Posiciona o cursor no arquivo da imagem para o byte correto do bitmap
                 write(ctx->fd, &ctx->block_bitmaps[g][i / 8], 1); // Escreve o byte do bitmap na imagem
+
+                // Atualiza o numero de blocos livres
+                ctx->sb.s_free_blocks_count_lo--;
+                ctx->sb.s_blocks_count_lo++; // Incrementa o contador de blocos alocados no superbloco
 
                 *out_block_number = static_cast<uint32_t>(g) * blocks_in_group + i; // Retorna o block number (0-based) aonde foi alocado
                 return 0;
@@ -96,6 +104,11 @@ int ext4_free_inode(ext4_context* ctx, uint32_t inode_number) {
     const uint32_t bmap_off = ctx->bgds[group].bg_inode_bitmap_lo * ctx->block_size; // Calcula o offset do bitmap de inodes no grupo
     lseek(ctx->fd, bmap_off + offset / 8, SEEK_SET);
     write(ctx->fd, &ctx->inode_bitmaps[group][offset / 8], 1);
+
+    // Atualiza o numero de inodes livres
+    ctx->sb.s_free_inodes_count++;
+    ctx->sb.s_inodes_count--;
+
     return 0;
 }
 
@@ -112,5 +125,10 @@ int ext4_free_block(ext4_context* ctx, uint32_t block_number) {
     const uint32_t bmap_off = ctx->bgds[group].bg_block_bitmap_lo * ctx->block_size; // Calcula o offset do bitmap de blocos no grupo
     lseek(ctx->fd, bmap_off + offset / 8, SEEK_SET);
     write(ctx->fd, &ctx->block_bitmaps[group][offset / 8], 1);
+
+    // Atualiza o numero de blocos livres
+    ctx->sb.s_free_blocks_count_lo++;
+    ctx->sb.s_blocks_count_lo--;
+
     return 0;
 }

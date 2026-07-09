@@ -121,5 +121,7 @@ uint32_t ext4_alloc_and_zero_block(ext4_context* ctx) {
     lseek(ctx->fd, off, SEEK_SET);
     write(ctx->fd, zeros, ctx->block_size);
     delete[] zeros;
+    
+    // Não atualiza o contador do superbloco uma vez que ext4_alloc_block já faz isso
     return block_number;
 }
